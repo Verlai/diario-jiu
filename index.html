@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f1115">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Diário de Jiu-Jítsu</title>
+<style>
+:root{--bg:#0f1115;--card:#171a21;--card2:#1e222b;--line:#2a2f3a;--txt:#e8eaed;--mut:#9aa0ab;--pri:#3b82f6;--pri2:#1d4ed8;--ok:#22c55e;--warn:#f59e0b;--err:#ef4444;--r:14px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:16px;line-height:1.45}
+header{position:sticky;top:0;z-index:20;background:rgba(15,17,21,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:12px 16px;padding-top:max(12px,env(safe-area-inset-top));display:flex;align-items:center;gap:10px}
+header h1{font-size:1.05rem;margin:0;flex:1;letter-spacing:.3px}
+header h1 span{color:var(--pri)}
+.icon-btn{background:var(--card2);border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:8px 11px;font-size:.9rem;cursor:pointer;position:relative}
+.badge{position:absolute;top:-6px;right:-6px;background:var(--warn);color:#000;border-radius:99px;font-size:.7rem;padding:1px 6px;font-weight:700}
+main{max-width:760px;margin:0 auto;padding:16px 14px 120px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:14px}
+.card h2{font-size:.95rem;margin:0 0 4px;display:flex;align-items:center;gap:8px}
+.card h2 .n{background:var(--pri);color:#fff;border-radius:99px;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:.75rem}
+.card p.hint{margin:0 0 12px;color:var(--mut);font-size:.85rem}
+label{display:block;font-size:.85rem;color:var(--mut);margin:12px 0 6px}
+label .req{color:var(--err)}
+input[type=text],input[type=date],input[type=number],input[type=url],input[type=password],textarea,select{width:100%;background:var(--card2);border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:11px 12px;font-size:16px;font-family:inherit;outline:none;transition:border .15s}
+input:focus,textarea:focus,select:focus{border-color:var(--pri)}
+textarea{min-height:84px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:520px){.row{grid-template-columns:1fr}}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);background:var(--card2);color:var(--txt);padding:8px 12px;border-radius:99px;font-size:.85rem;cursor:pointer;user-select:none;transition:all .12s}
+.chip.on{background:var(--pri);border-color:var(--pri);color:#fff}
+.rating{display:flex;gap:8px}
+.rating button{flex:1;padding:11px 0;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:var(--txt);font-size:1rem;font-weight:600;cursor:pointer}
+.rating button.on{background:var(--pri);border-color:var(--pri);color:#fff}
+.rating-lbl{display:flex;justify-content:space-between;font-size:.72rem;color:var(--mut);margin-top:4px}
+.stepper{display:flex;align-items:center;gap:10px}
+.stepper button{width:44px;height:44px;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:var(--txt);font-size:1.3rem;cursor:pointer}
+.stepper input{text-align:center;width:80px}
+details{border-top:1px dashed var(--line);margin-top:14px;padding-top:6px}
+summary{cursor:pointer;color:var(--pri);font-size:.88rem;padding:6px 0}
+.links .lrow{display:flex;gap:8px;margin-bottom:8px}
+.links .lrow button{background:var(--card2);border:1px solid var(--line);color:var(--err);border-radius:10px;padding:0 12px;cursor:pointer}
+.btn{border:none;border-radius:12px;padding:14px 18px;font-size:1rem;font-weight:600;cursor:pointer}
+.btn.pri{background:var(--pri);color:#fff}
+.btn.pri:active{background:var(--pri2)}
+.btn.ghost{background:var(--card2);color:var(--txt);border:1px solid var(--line)}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.small-btn{background:none;border:none;color:var(--pri);font-size:.85rem;cursor:pointer;padding:6px 0}
+footer.bar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:rgba(15,17,21,.95);backdrop-filter:blur(8px);border-top:1px solid var(--line);padding:12px 14px;padding-bottom:max(12px,env(safe-area-inset-bottom))}
+footer.bar .in{max-width:760px;margin:0 auto;display:flex;gap:10px;align-items:center}
+footer.bar .btn.pri{flex:1}
+#saveState{font-size:.75rem;color:var(--mut);min-width:80px}
+.hidden{display:none!important}
+.toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%) translateY(20px);background:var(--card2);border:1px solid var(--line);padding:12px 16px;border-radius:12px;opacity:0;transition:all .25s;z-index:50;max-width:90vw;font-size:.9rem;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.ok{border-color:var(--ok)}.toast.err{border-color:var(--err)}.toast.warn{border-color:var(--warn)}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:40;display:flex;align-items:flex-end;justify-content:center}
+.modal{background:var(--card);border:1px solid var(--line);border-radius:18px 18px 0 0;width:100%;max-width:560px;padding:20px;padding-bottom:max(20px,env(safe-area-inset-bottom));max-height:88vh;overflow:auto}
+@media(min-width:620px){.modal-bg{align-items:center}.modal{border-radius:18px}}
+.modal h3{margin:0 0 6px}
+.modal .actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.modal .actions .btn{flex:1}
+.pend-item{background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:8px;font-size:.85rem}
+.err-field{border-color:var(--err)!important}
+.success{text-align:center;padding:30px 10px}
+.success .big{font-size:3rem}
+
+.fld.err input,.fld.err textarea{border-color:var(--err)!important}
+.fld.err .chips,.fld.err .rating{outline:1px solid var(--err);outline-offset:4px;border-radius:10px}
+.fld.err>label{color:var(--err)}
+.chips.err-field{outline:1px solid var(--err);outline-offset:4px;border-radius:10px}
+.sub{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:10px}
+.sub input,.sub textarea,.sub .chip{background:var(--bg)}
+.sub .chip.on{background:var(--pri)}
+.sub-h{display:flex;justify-content:space-between;align-items:center}
+.danger{color:var(--err)!important}
+.btn.wide{width:100%;margin-top:10px}
+#tipoDesc{margin:10px 0 0}
+.aba{display:inline-block;margin-top:6px;font-size:.75rem;background:var(--card2);border:1px solid var(--line);padding:3px 8px;border-radius:99px}
+</style>
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" type="image/png" href="./icons/icon-192.png">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Diário de Jiu">
+<meta name="description" content="Diário pessoal de treinos e estudos de Jiu-Jítsu.">
+<script src="./pwa.js" defer></script>
+</head>
+<body>
+<header>
+  <h1>🥋 Diário de <span>Jiu-Jítsu</span></h1>
+  <button class="icon-btn" id="btnPend" title="Registros pendentes">⏳<span class="badge hidden" id="pendBadge">0</span></button>
+  <button class="icon-btn" id="btnCfg" title="Configurações">⚙️</button>
+</header>
+<main>
+<section class="card" aria-label="Aplicativo">
+  <p id="pwaStatus" role="status" style="margin:0;font-size:.85rem">Preparando aplicativo…</p>
+  <button id="pwaInstall" class="small-btn hidden" type="button">Instalar aplicativo</button>
+  <details><summary>Como instalar e usar offline</summary>
+    <p class="hint">Android/Chrome e computador/Chrome ou Edge: use Instalar aplicativo no menu do navegador. No iPhone/Safari: Compartilhar → Adicionar à Tela de Início.</p>
+    <p class="hint">Abra online uma primeira vez e aguarde a indicação de interface pronta para uso offline. O envio ao n8n exige internet. Pendentes são reenviados ao abrir com conexão ou quando a conexão retorna com o app aberto. Não há envio garantido com o app fechado.</p>
+    <p class="hint">Rascunhos e pendências são locais. Não limpe os dados do navegador antes de enviar ou exportar pendências.</p>
+  </details>
+</section>
+<div id="formWrap">
+<section class="card">
+  <h2><span class="n">1</span>Tipo de registro <span class="req">*</span></h2>
+  <p class="hint">Cada tipo tem seus próprios campos e vai para uma aba diferente da planilha.</p>
+  <div class="chips" id="tipoChips"></div>
+  <p class="hint" id="tipoDesc"></p>
+</section>
+<div id="dyn"></div>
+</div>
+<section class="card success hidden" id="successBox">
+  <div class="big">🥋</div>
+  <h2 style="justify-content:center">Registro enviado!</h2>
+  <p class="hint" id="successMsg"></p>
+  <button class="btn pri" id="btnNew">Novo registro</button>
+</section>
+</main>
+<footer class="bar" id="bar">
+  <div class="in">
+    <span id="saveState">—</span>
+    <button class="btn ghost" id="btnClear" type="button">Limpar</button>
+    <button class="btn pri" id="btnSend" type="button">Enviar registro</button>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<!-- Modal config -->
+<div class="modal-bg hidden" id="mCfg">
+  <div class="modal">
+    <h3>⚙️ Configurações</h3>
+    <p class="hint">Salvas somente neste navegador (não ficam no código do site).</p>
+    <label>URL do webhook do n8n</label>
+    <input type="url" id="cfgUrl" placeholder="https://seu-n8n.com/webhook/bjj-registro">
+    <label>Token de acesso (header <code>X-Api-Key</code>)</label>
+    <input type="password" id="cfgToken" placeholder="Opcional, recomendado">
+    <label>Seu nome / identificador</label>
+    <input type="text" id="cfgUser" placeholder="Ex.: joao">
+    <div class="actions">
+      <button class="btn ghost" id="cfgTest" type="button">Testar conexão</button>
+      <button class="btn pri" id="cfgSave" type="button">Salvar</button>
+    </div>
+    <div class="actions"><button class="btn ghost" id="cfgClose" type="button">Fechar</button></div>
+  </div>
+</div>
+
+<!-- Modal pendentes -->
+<div class="modal-bg hidden" id="mPend">
+  <div class="modal">
+    <h3>⏳ Registros pendentes</h3>
+    <p class="hint">Registros que não foram enviados (sem internet ou erro no n8n). Ficam guardados aqui até serem reenviados.</p>
+    <div id="pendList"></div>
+    <div class="actions">
+      <button class="btn ghost" id="pendExport" type="button">Exportar JSON</button>
+      <button class="btn pri" id="pendRetry" type="button">Reenviar todos</button>
+    </div>
+    <div class="actions"><button class="btn ghost" id="pendClose" type="button">Fechar</button></div>
+  </div>
+</div>
+
+<script>
+(() => {
+const C = {"schema_version": 2, "fields": {"data": {"t": "date", "label": "Data"}, "local": {"t": "text", "label": "Academia / local", "ph": "Ex.: Academia X"}, "professor": {"t": "text", "label": "Professor(a)", "ph": ""}, "modalidade": {"t": "single", "label": "Modalidade", "opts": [["gi", "Gi (kimono)"], ["nogi", "No-Gi"]]}, "duracao_min": {"t": "number", "label": "Duração (min)", "step": 15, "max": 600}, "temas": {"t": "multi", "label": "Temas", "opts": [["guarda_fechada", "Guarda fechada"], ["guarda_aberta", "Guarda aberta"], ["meia_guarda", "Meia-guarda"], ["passagem", "Passagem"], ["raspagem", "Raspagem"], ["quedas", "Quedas"], ["montada", "Montada"], ["cem_quilos", "100 kg"], ["costas", "Costas"], ["finalizacao", "Finalização"], ["leg_lock", "Leg lock"], ["defesa_escape", "Defesa / saída"], ["transicao", "Transição"], ["estrategia", "Estratégia"], ["condicionamento", "Condicionamento"], ["mentalidade", "Mentalidade"]]}, "tema_outro": {"t": "text", "label": "Outro tema", "ph": "Opcional"}, "tecnica_nome": {"t": "text", "label": "Técnica / conceito estudado", "ph": "Ex.: Raspagem de tesoura com controle de manga"}, "tec_posicao_inicial": {"t": "textarea", "label": "Posição inicial", "ph": "De onde a técnica começa?", "rows": 2}, "tec_pegadas": {"t": "textarea", "label": "Pegadas / controles", "ph": "Quais pegadas são obrigatórias?", "rows": 2}, "tec_preparacao": {"t": "textarea", "label": "Desequilíbrio / preparação", "ph": "", "rows": 2}, "tec_movimento": {"t": "textarea", "label": "Movimento principal", "ph": "", "rows": 3}, "tec_detalhe_chave": {"t": "textarea", "label": "🔑 Detalhe que NÃO posso esquecer", "ph": "", "rows": 2}, "tec_erro_comum": {"t": "textarea", "label": "Erro comum", "ph": "", "rows": 2}, "tec_continuacao": {"t": "textarea", "label": "Continuação (finalização / transição / reação do oponente)", "ph": "", "rows": 2}, "rola_qtd": {"t": "number", "label": "Quantos rolas fez?", "max": 30}, "rola_aplicacao": {"t": "single", "label": "Conseguiu aplicar a técnica da aula?", "opts": [["sim", "Sim ✅"], ["parcial", "Parcialmente"], ["tentei_nao_consegui", "Tentei, não saiu"], ["nao_tentei", "Não tentei"]]}, "rola_relato_aplicacao": {"t": "textarea", "label": "O que aconteceu quando tentou?", "ph": "Ex.: Perdi a pegada da manga antes de desequilibrar", "rows": 2}, "rola_foco": {"t": "multi", "label": "Foco dos rolas (o que quis trabalhar)", "opts": [["guarda_fechada", "Guarda fechada"], ["guarda_aberta", "Guarda aberta"], ["meia_guarda", "Meia-guarda"], ["passagem", "Passagem"], ["raspagem", "Raspagem"], ["quedas", "Quedas"], ["montada", "Montada"], ["cem_quilos", "100 kg"], ["costas", "Costas"], ["finalizacao", "Finalização"], ["leg_lock", "Leg lock"], ["defesa_escape", "Defesa / saída"], ["transicao", "Transição"], ["estrategia", "Estratégia"], ["condicionamento", "Condicionamento"], ["mentalidade", "Mentalidade"]]}, "rola_objetivo": {"t": "textarea", "label": "O que queria testar hoje?", "ph": "Ex.: Só jogar de meia-guarda por baixo", "rows": 2}, "rola_objetivo_cumprido": {"t": "single", "label": "Cumpriu o objetivo?", "opts": [["sim", "Sim ✅"], ["parcial", "Parcialmente"], ["nao", "Não"]]}, "rola_posicoes_bem": {"t": "multi", "label": "Onde me senti bem", "opts": [["guarda_fechada", "Guarda fechada"], ["guarda_aberta", "Guarda aberta"], ["meia_guarda", "Meia-guarda"], ["passagem", "Passagem"], ["raspagem", "Raspagem"], ["quedas", "Quedas"], ["montada", "Montada"], ["cem_quilos", "100 kg"], ["costas", "Costas"], ["finalizacao", "Finalização"], ["leg_lock", "Leg lock"], ["defesa_escape", "Defesa / saída"], ["transicao", "Transição"], ["estrategia", "Estratégia"], ["condicionamento", "Condicionamento"], ["mentalidade", "Mentalidade"]]}, "rola_dificuldades": {"t": "multi", "label": "Onde teve mais dificuldade?", "opts": [["entrar_posicao", "Entrar na posição"], ["manter_controle", "Manter controle"], ["desequilibrar", "Desequilibrar"], ["finalizar", "Finalizar"], ["defender", "Defender"], ["sair_posicao_ruim", "Sair de posição ruim"], ["respiracao_calma", "Respiração / calma"], ["tomada_decisao", "Tomada de decisão"], ["gas", "Gás"]]}, "rola_adversarios": {"t": "multi", "label": "Tipo de adversário mais difícil", "opts": [["mais_pesado", "Mais pesado"], ["mais_forte", "Mais forte"], ["mais_graduado", "Mais graduado"], ["explosivo", "Explosivo"], ["flexivel", "Flexível"], ["guardeiro", "Guardeiro"], ["passador_pressao", "Passador de pressão"], ["jogo_em_pe", "Jogo em pé"]]}, "rola_situacao_repetida": {"t": "textarea", "label": "Situação que mais se repetiu", "ph": "Ex.: Fiquei preso na meia-guarda por baixo sem underhook", "rows": 2}, "rola_finalizei": {"t": "number", "label": "Quantas vezes finalizei", "max": 50}, "rola_fui_finalizado": {"t": "number", "label": "Quantas vezes fui finalizado", "max": 50}, "rola_finalizacoes_usadas": {"t": "text", "label": "Finalizações que encaixei", "ph": "Ex.: triângulo, armlock da montada"}, "nota_tecnica": {"t": "rating", "label": "Técnico", "lo": "ruim", "hi": "excelente"}, "nota_fisica": {"t": "rating", "label": "Físico (gás, força)", "lo": "ruim", "hi": "excelente"}, "nota_mental": {"t": "rating", "label": "Mental (calma, clareza, decisão)", "lo": "ruim", "hi": "excelente"}, "nota_compreensao": {"t": "rating", "label": "Compreensão do conteúdo", "lo": "não entendi", "hi": "domino a teoria"}, "nota_aproveitamento": {"t": "rating", "label": "Aproveitamento da sessão", "lo": "pouco", "hi": "muito"}, "nota_estado": {"t": "rating", "label": "Como estou me sentindo com o Jiu", "lo": "desanimado", "hi": "motivado"}, "dor_lesao": {"t": "textarea", "label": "Dor / lesão / desconforto", "ph": "Deixe em branco se estiver tudo bem", "rows": 2}, "pontos_positivos": {"t": "textarea", "label": "✅ O que fiz bem", "ph": "", "rows": 3}, "pontos_melhorar": {"t": "textarea", "label": "⚠️ Principal erro / ponto a melhorar", "ph": "", "rows": 3}, "proximo_objetivo": {"t": "textarea", "label": "🎯 Uma coisa para testar no próximo treino", "ph": "Ex.: Quebrar a postura antes de atacar da guarda fechada", "rows": 2}, "importancia": {"t": "single", "label": "Importância para o meu jogo", "opts": [["baixa", "Baixa"], ["media", "Média"], ["alta", "Alta"], ["essencial", "Essencial ⭐"]], "hint": "Define as datas de revisão na planilha. O envio por e-mail exige uma automação separada.", "def": "media"}, "links": {"t": "links", "label": "Links (vídeos, posts, aulas)"}, "observacoes": {"t": "textarea", "label": "Observações gerais", "ph": "", "rows": 3}, "fonte": {"t": "single", "label": "Fonte", "opts": [["youtube", "YouTube"], ["instagram", "Instagram"], ["instrucional", "Instrucional (pago)"], ["aula_gravada", "Aula gravada"], ["livro_artigo", "Livro / artigo"], ["outro", "Outro"]]}, "material_titulo": {"t": "text", "label": "Título do material", "ph": "Ex.: Half Guard System – vol. 2"}, "autor": {"t": "text", "label": "Autor / instrutor", "ph": ""}, "estudo_encaixe": {"t": "textarea", "label": "Onde isso encaixa no meu jogo?", "ph": "De qual posição minha isso sai? Contra que tipo de adversário?", "rows": 2}, "estudo_duvidas": {"t": "textarea", "label": "Dúvidas / o que não ficou claro", "ph": "", "rows": 2}, "formato": {"t": "single", "label": "Formato", "opts": [["particular", "Aula particular"], ["seminario", "Seminário"], ["workshop", "Workshop / camp"], ["aula_convidado", "Aula com convidado"]]}, "sessao_titulo": {"t": "text", "label": "Nome do seminário / evento", "ph": "Opcional"}, "tecnicas_adicionais": {"t": "textarea", "label": "Outras técnicas mostradas", "ph": "Uma por linha", "rows": 3}, "correcoes_recebidas": {"t": "textarea", "label": "Correções / feedback do professor sobre o MEU jogo", "ph": "", "rows": 3}, "drills_recomendados": {"t": "textarea", "label": "Drills / tarefas recomendadas", "ph": "", "rows": 2}, "titulo": {"t": "text", "label": "Título", "ph": "Ex.: Por que travo contra faixas mais altas?"}, "reflexao_categoria": {"t": "single", "label": "Categoria", "opts": [["mentalidade", "Mentalidade"], ["motivacao", "Motivação"], ["evolucao", "Evolução"], ["estrategia_jogo", "Estratégia de jogo"], ["lesao_saude", "Lesão / saúde"], ["rotina_treino", "Rotina de treino"], ["relacao_academia", "Academia / equipe"], ["outro", "Outro"]]}, "reflexao_texto": {"t": "textarea", "label": "Reflexão", "ph": "Escreva livremente…", "rows": 8}}, "types": {"treino_aula_rola": {"label": "Aula + rola", "aba": "Aula_Rola", "desc": "Aula com técnica ensinada e rolas depois.", "req": ["data", "tecnica_nome"], "sections": [{"title": "Treino", "hint": "", "fields": ["data", "local", "professor", "modalidade", "duracao_min"], "more": null}, {"title": "Tema e técnica", "hint": "Escolha um ou mais temas.", "fields": ["temas", "tema_outro", "tecnica_nome"], "more": {"label": "Passo a passo (explique como se fosse ensinar alguém)", "open": true, "fields": ["tec_posicao_inicial", "tec_pegadas", "tec_preparacao", "tec_movimento", "tec_detalhe_chave", "tec_erro_comum", "tec_continuacao"]}}, {"title": "Rolas", "hint": "Como foi a aplicação na prática.", "fields": ["rola_qtd", "rola_aplicacao", "rola_relato_aplicacao", "rola_dificuldades", "rola_adversarios", "rola_situacao_repetida"], "more": null}, {"title": "Autoavaliação", "hint": "1 = muito ruim · 5 = excelente", "fields": ["nota_tecnica", "nota_fisica", "nota_mental", "dor_lesao"], "more": null}, {"title": "Reflexão", "hint": "", "fields": ["pontos_positivos", "pontos_melhorar", "proximo_objetivo", "importancia"], "more": null}, {"title": "Referências", "hint": "", "fields": ["links", "observacoes"], "more": null}]}, "apenas_rola": {"label": "Só rola", "aba": "Rolas", "desc": "Treino livre / open mat, sem técnica nova.", "req": ["data", "rola_qtd"], "sections": [{"title": "Treino", "hint": "", "fields": ["data", "local", "modalidade", "duracao_min"], "more": null}, {"title": "Objetivo do dia", "hint": "", "fields": ["rola_foco", "rola_objetivo"], "more": null}, {"title": "Rolas", "hint": "", "fields": ["rola_qtd", "rola_objetivo_cumprido", "rola_posicoes_bem", "rola_dificuldades", "rola_adversarios", "rola_situacao_repetida"], "more": {"label": "Finalizações", "open": false, "fields": ["rola_finalizei", "rola_fui_finalizado", "rola_finalizacoes_usadas"]}}, {"title": "Autoavaliação", "hint": "1 = muito ruim · 5 = excelente", "fields": ["nota_tecnica", "nota_fisica", "nota_mental", "dor_lesao"], "more": null}, {"title": "Reflexão", "hint": "", "fields": ["pontos_positivos", "pontos_melhorar", "proximo_objetivo"], "more": null}, {"title": "Referências", "hint": "", "fields": ["links", "observacoes"], "more": null}]}, "estudo_video": {"label": "Estudo / vídeo", "aba": "Estudos", "desc": "Estudo fora do tatame: vídeo, instrucional, livro.", "req": ["data", "tecnica_nome"], "labels": {"proximo_objetivo": "🎯 O que vou testar no tatame", "links": "Link do material"}, "sections": [{"title": "Material", "hint": "", "fields": ["data", "fonte", "material_titulo", "autor", "links", "duracao_min"], "more": null}, {"title": "Técnica", "hint": "", "fields": ["temas", "tema_outro", "tecnica_nome"], "more": {"label": "Passo a passo (explique como se fosse ensinar alguém)", "open": true, "fields": ["tec_posicao_inicial", "tec_pegadas", "tec_preparacao", "tec_movimento", "tec_detalhe_chave", "tec_erro_comum", "tec_continuacao"]}}, {"title": "Aplicação no meu jogo", "hint": "", "fields": ["estudo_encaixe", "estudo_duvidas", "proximo_objetivo", "nota_compreensao"], "more": null}, {"title": "Revisão", "hint": "", "fields": ["importancia", "observacoes"], "more": null}]}, "particular_seminario": {"label": "Particular / seminário", "aba": "Particulares", "desc": "Aula particular, seminário ou workshop.", "req": ["data", "formato", "professor", "tecnica_nome"], "labels": {"tecnica_nome": "Técnica / conceito principal"}, "sections": [{"title": "Sessão", "hint": "", "fields": ["data", "formato", "professor", "sessao_titulo", "local", "modalidade", "duracao_min"], "more": null}, {"title": "Técnica principal", "hint": "", "fields": ["temas", "tema_outro", "tecnica_nome"], "more": {"label": "Passo a passo (explique como se fosse ensinar alguém)", "open": true, "fields": ["tec_posicao_inicial", "tec_pegadas", "tec_preparacao", "tec_movimento", "tec_detalhe_chave", "tec_erro_comum", "tec_continuacao"]}}, {"title": "Conteúdo extra e feedback", "hint": "", "fields": ["tecnicas_adicionais", "correcoes_recebidas", "drills_recomendados"], "more": null}, {"title": "Autoavaliação", "hint": "", "fields": ["nota_aproveitamento", "nota_tecnica", "dor_lesao"], "more": null}, {"title": "Reflexão", "hint": "", "fields": ["pontos_positivos", "pontos_melhorar", "proximo_objetivo", "importancia"], "more": null}, {"title": "Referências", "hint": "", "fields": ["links", "observacoes"], "more": null}]}, "reflexao": {"label": "Reflexão livre", "aba": "Reflexoes", "desc": "Pensamentos sobre sua jornada, sem treino específico.", "req": ["data", "titulo", "reflexao_texto"], "labels": {"temas": "Temas relacionados", "proximo_objetivo": "🎯 Ação prática que vou tomar", "importancia": "Quero revisitar essa reflexão?"}, "sections": [{"title": "Reflexão", "hint": "", "fields": ["data", "titulo", "reflexao_categoria", "reflexao_texto", "nota_estado"], "more": null}, {"title": "Conexões", "hint": "", "fields": ["temas", "proximo_objetivo", "importancia", "links"], "more": null}]}}};
+const SCHEMA_VERSION = C.schema_version;
+const K = {cfg:'bjj_cfg', draft:'bjj_draft_v2', pend:'bjj_pending'};
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const el = (tag, cls) => { const e = document.createElement(tag); if(cls) e.className = cls; return e; };
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const load = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } };
+const save = (k, v) => localStorage.setItem(k, JSON.stringify(v));
+const cfg = () => load(K.cfg, {url:'', token:'', user:''});
+const today = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0,10); };
+const uuid = () => (crypto.randomUUID ? crypto.randomUUID() : 'id-' + Date.now() + '-' + Math.random().toString(16).slice(2));
+function toast(msg, type='ok', ms=2800){ const t=$('#toast'); t.textContent=msg; t.className='toast show '+type; clearTimeout(t._h); t._h=setTimeout(()=>t.className='toast', ms); }
+
+let state = load(K.draft, {tipo:'', v:{}});
+if(!state.v) state.v = {};
+if(state.tipo && !C.types[state.tipo]) state = {tipo:'', v:{}};
+
+const fieldsOf = t => t.sections.flatMap(s => s.fields.concat(s.more ? s.more.fields : []));
+
+// ---------- widgets ----------
+function widget(f, get, set){
+  const w = el('div','fld'); w.dataset.f = f.id;
+  const lab = el('label'); lab.innerHTML = esc(f.label) + (f.req ? ' <span class="req">*</span>' : ''); w.appendChild(lab);
+  switch(f.t){
+    case 'text': case 'date': case 'textarea': {
+      const i = el(f.t==='textarea' ? 'textarea' : 'input');
+      if(f.t==='textarea') i.rows = f.rows || 2; else i.type = f.t;
+      i.placeholder = f.ph || ''; i.value = get() ?? '';
+      i.addEventListener('input', () => set(i.value)); w.appendChild(i); break;
+    }
+    case 'number': {
+      const i = el('input'); i.type='number'; i.inputMode = f.dec ? 'decimal' : 'numeric';
+      i.min = f.min ?? 0; i.max = f.max ?? 999; i.step = f.step || 1; i.placeholder = f.ph || '';
+      const cur = get(); i.value = (cur ?? '') === '' ? '' : cur;
+      i.addEventListener('input', () => set(i.value === '' ? null : +i.value));
+      if(f.plain){ w.appendChild(i); break; }
+      const s = el('div','stepper'), m = el('button'), p = el('button');
+      m.type = p.type = 'button'; m.textContent = '−'; p.textContent = '+';
+      const upd = d => { let x = (parseFloat(i.value)||0) + d*(f.step||1); x = Math.max(f.min??0, Math.min(f.max??999, x)); x = Math.round(x*10)/10; i.value = x; set(x); };
+      m.onclick = () => upd(-1); p.onclick = () => upd(1);
+      s.append(m, i, p); w.appendChild(s); break;
+    }
+    case 'single': case 'multi': {
+      const g = el('div','chips'); const cur = get();
+      f.opts.forEach(([ov, ol]) => {
+        const c = el('span','chip'); c.textContent = ol; c.dataset.v = ov;
+        if(f.t==='single' ? cur===ov : (cur||[]).includes(ov)) c.classList.add('on');
+        c.onclick = () => {
+          if(f.t==='single'){ const on=c.classList.contains('on'); g.querySelectorAll('.chip').forEach(x=>x.classList.remove('on')); if(!on) c.classList.add('on'); set(on ? '' : ov); }
+          else { c.classList.toggle('on'); set([...g.querySelectorAll('.chip.on')].map(x=>x.dataset.v)); }
+        };
+        g.appendChild(c);
+      });
+      w.appendChild(g); break;
+    }
+    case 'rating': {
+      const r = el('div','rating');
+      for(let n=1;n<=5;n++){ const b = el('button'); b.type='button'; b.textContent=n; if(+get()===n) b.classList.add('on');
+        b.onclick = () => { const on=b.classList.contains('on'); r.querySelectorAll('button').forEach(x=>x.classList.remove('on')); if(!on) b.classList.add('on'); set(on ? null : n); };
+        r.appendChild(b); }
+      w.appendChild(r);
+      w.insertAdjacentHTML('beforeend', `<div class="rating-lbl"><span>${esc(f.lo||'ruim')}</span><span>${esc(f.hi||'excelente')}</span></div>`);
+      break;
+    }
+    case 'links': {
+      const box = el('div','links'); const arr = () => [...box.querySelectorAll('input')].map(x=>x.value);
+      const add = val => { const d = el('div','lrow'); d.innerHTML = '<input type="url" inputmode="url" placeholder="https://..."><button type="button" aria-label="remover">✕</button>';
+        const inp = d.querySelector('input'); inp.value = val; inp.addEventListener('input', () => set(arr()));
+        d.querySelector('button').onclick = () => { d.remove(); set(arr()); }; box.appendChild(d); };
+      const cur = get(); (cur && cur.length ? cur : ['']).forEach(add);
+      const b = el('button','small-btn'); b.type='button'; b.textContent='+ adicionar link'; b.onclick = () => add('');
+      w.append(box, b); break;
+    }
+  }
+  if(f.hint) w.insertAdjacentHTML('beforeend', `<p class="hint" style="margin-top:6px">${esc(f.hint)}</p>`);
+  return w;
+}
+
+// ---------- render ----------
+function renderTipos(){
+  const g = $('#tipoChips'); g.innerHTML = '';
+  Object.entries(C.types).forEach(([k, t]) => {
+    const c = el('span','chip' + (state.tipo===k ? ' on' : '')); c.textContent = t.label;
+    c.onclick = () => { if(state.tipo===k) return; state.tipo = k; g.classList.remove('err-field'); renderTipos(); render(); changed(); window.scrollTo({top:0, behavior:'smooth'}); };
+    g.appendChild(c);
+  });
+}
+function render(){
+  const box = $('#dyn'); box.innerHTML = '';
+  const t = C.types[state.tipo];
+  $('#tipoDesc').innerHTML = t ? `${esc(t.desc)}<br><span class="aba">📄 aba: <b>${esc(t.aba)}</b></span>` : 'Escolha um tipo para ver os campos.';
+  if(!t) return;
+  if(!state.v.data) state.v.data = today();
+  const fieldW = id => {
+    const base = C.fields[id];
+    const f = {...base, id, label: (t.labels && t.labels[id]) || base.label, req: (t.req||[]).includes(id)};
+    const w = widget(f, () => state.v[id], v => { state.v[id] = v; w.classList.remove('err'); changed(); });
+    return w;
+  };
+  t.sections.forEach((s, i) => {
+    const sec = el('section','card');
+    sec.innerHTML = `<h2><span class="n">${i+2}</span>${esc(s.title)}</h2>` + (s.hint ? `<p class="hint">${esc(s.hint)}</p>` : '');
+    s.fields.forEach(id => sec.appendChild(fieldW(id)));
+    if(s.more){ const d = el('details'); d.open = !!s.more.open; d.innerHTML = `<summary>${esc(s.more.label)}</summary>`; s.more.fields.forEach(id => d.appendChild(fieldW(id))); sec.appendChild(d); }
+    box.appendChild(sec);
+  });
+}
+
+// ---------- collect / validate ----------
+const isEmpty = v => v == null || (typeof v === 'string' && !v.trim()) || (Array.isArray(v) && !v.filter(x => String(x ?? '').trim()).length);
+function flat(f, v){
+  if(f.t==='multi') return (v||[]).join(', ');
+  if(f.t==='links') return (v||[]).map(x=>x.trim()).filter(Boolean).join('\n');
+  if(f.t==='number' || f.t==='rating') return (v==null || v==='') ? '' : +v;
+  const s = String(v ?? '').trim();
+  return s || f.def || '';
+}
+function collect(){
+  const t = C.types[state.tipo], c = cfg(), id = uuid();
+  const meta = {id, criado_em: new Date().toISOString(), usuario: c.user || '', fuso: Intl.DateTimeFormat().resolvedOptions().timeZone, origem: 'web_html', schema_version: SCHEMA_VERSION, tipo: state.tipo};
+  const linha = {...meta}, raw = {}, filhos = [];
+  fieldsOf(t).forEach(fid => {
+    const f = C.fields[fid], v = state.v[fid];
+    linha[fid] = flat(f, v);
+    raw[fid] = f.t==='links' ? (v||[]).map(x=>x.trim()).filter(Boolean) : (f.t==='multi' ? (v||[]) : linha[fid]);
+  });
+  return {schema_version: SCHEMA_VERSION, tipo: state.tipo, aba: t.aba, meta, linha, filhos, raw};
+}
+function validate(){
+  const t = C.types[state.tipo];
+  if(!t){ $('#tipoChips').classList.add('err-field'); toast('Escolha o tipo de registro', 'err'); window.scrollTo({top:0, behavior:'smooth'}); return false; }
+  let first = null;
+  (t.req || []).forEach(id => {
+    const f = C.fields[id], v = state.v[id];
+    const bad = f.t==='number' ? !(+v > 0) : isEmpty(v);
+    if(bad){ const w = $(`#dyn .fld[data-f="${id}"]`); if(w){ w.classList.add('err'); w.closest('details')?.setAttribute('open',''); first = first || w; } }
+  });
+  if(first){ first.scrollIntoView({behavior:'smooth', block:'center'}); toast('Preencha os campos obrigatórios (*)', 'err'); return false; }
+  return true;
+}
+
+// ---------- draft ----------
+let saveT;
+function changed(){ $('#saveState').textContent = 'salvando…'; clearTimeout(saveT); saveT = setTimeout(() => { save(K.draft, state); $('#saveState').textContent = 'rascunho salvo ✓'; }, 400); }
+function clearForm(){ clearTimeout(saveT); state.v = {}; localStorage.setItem(K.draft, JSON.stringify(state)); render(); $('#saveState').textContent = '—'; }
+
+// ---------- send ----------
+async function post(payload){
+  const c = cfg(); if(!c.url) throw new Error('SEM_URL');
+  const headers = {'Content-Type':'application/json'}; if(c.token) headers['X-Api-Key'] = c.token;
+  const ctrl = new AbortController(); const to = setTimeout(() => ctrl.abort(), 20000);
+  try{
+    const r = await fetch(c.url, {method:'POST', headers, body: JSON.stringify(payload), signal: ctrl.signal});
+    if(!r.ok) throw new Error('HTTP ' + r.status);
+    const body = await r.json();
+    if(body?.ok !== true) throw new Error(body?.mensagem || 'Resposta não confirmada pelo n8n');
+    return body;
+  } finally { clearTimeout(to); }
+}
+const pending = () => load(K.pend, []);
+function setPending(l){ save(K.pend, l); renderPendBadge(); }
+function renderPendBadge(){ const n = pending().length, b = $('#pendBadge'); b.textContent = n; b.classList.toggle('hidden', !n); }
+
+$('#btnSend').onclick = async () => {
+  if(!validate()) return;
+  const p = collect();
+  if(!cfg().url){ toast('Configure a URL do webhook primeiro', 'warn'); openCfg(); return; }
+  const btn = $('#btnSend'); btn.disabled = true; btn.textContent = 'Enviando…';
+  try{ const res = await post(p); clearForm(); showSuccess(res); }
+  catch(e){ setPending([...pending(), p]); clearForm(); toast(e.name==='AbortError' ? 'Tempo esgotado. Registro guardado em pendentes.' : 'Falha no envio. Registro guardado em pendentes ⏳', 'warn', 4000); }
+  finally{ btn.disabled = false; btn.textContent = 'Enviar registro'; }
+};
+function showSuccess(res){
+  $('#formWrap').classList.add('hidden'); $('#bar').classList.add('hidden'); $('#successBox').classList.remove('hidden');
+  $('#successMsg').textContent = (res && res.mensagem) ? res.mensagem : 'Registro salvo na planilha.';
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+$('#btnNew').onclick = () => { $('#successBox').classList.add('hidden'); $('#formWrap').classList.remove('hidden'); $('#bar').classList.remove('hidden'); };
+$('#btnClear').onclick = () => { if(confirm('Limpar os campos deste registro?')) clearForm(); };
+
+// ---------- pending ----------
+let retryBusy = false;
+async function retryAll(silent=false){
+  if(retryBusy || !navigator.onLine) return;
+  const list = pending(); if(!list.length || !cfg().url) return;
+  retryBusy = true; $('#pendRetry').disabled = true;
+  const idOf = p => p.meta?.id || p.linha?.id || p.id;
+  const sent = new Set(); let successes = 0;
+  try {
+    for(const p of list){
+      try {
+        await post({...p, reenviado_em: new Date().toISOString()});
+        sent.add(idOf(p) || JSON.stringify(p)); successes++;
+        setPending(pending().filter(x => !sent.has(idOf(x) || JSON.stringify(x))));
+      } catch { }
+    }
+    renderPendList();
+    if(!silent) toast(`${successes} enviados, ${pending().length} ainda pendentes`, pending().length ? 'warn' : 'ok');
+  } finally { retryBusy = false; $('#pendRetry').disabled = false; }
+}
+function renderPendList(){
+  const l = pending();
+  $('#pendList').innerHTML = l.length ? l.map(p => { const L = p.linha || p; const tl = C.types[p.tipo || L.tipo]?.label || '';
+    return `<div class="pend-item"><b>${esc(L.data)}</b> · ${esc(tl)} · ${esc(L.tecnica_nome || L.titulo || '')}</div>`; }).join('')
+    : '<p class="hint">Nenhum registro pendente 👌</p>';
+}
+$('#btnPend').onclick = () => { renderPendList(); $('#mPend').classList.remove('hidden'); };
+$('#pendClose').onclick = () => $('#mPend').classList.add('hidden');
+$('#pendRetry').onclick = () => retryAll();
+$('#pendExport').onclick = () => { const blob = new Blob([JSON.stringify(pending(), null, 2)], {type:'application/json'}); const a = el('a'); a.href = URL.createObjectURL(blob); a.download = `bjj-pendentes-${today()}.json`; a.click(); };
+
+// ---------- config ----------
+function openCfg(){ const c = cfg(); $('#cfgUrl').value = c.url; $('#cfgToken').value = c.token; $('#cfgUser').value = c.user; $('#mCfg').classList.remove('hidden'); }
+const readCfg = () => save(K.cfg, {url: $('#cfgUrl').value.trim(), token: $('#cfgToken').value.trim(), user: $('#cfgUser').value.trim()});
+$('#btnCfg').onclick = openCfg;
+$('#cfgClose').onclick = () => $('#mCfg').classList.add('hidden');
+$('#cfgSave').onclick = () => { readCfg(); $('#mCfg').classList.add('hidden'); toast('Configurações salvas ✓'); retryAll(true); };
+$('#cfgTest').onclick = async () => { readCfg();
+  try{ await post({teste: true, criado_em: new Date().toISOString()}); toast('Conexão OK ✓'); }
+  catch(e){ toast('Falhou: ' + (e.message==='SEM_URL' ? 'informe a URL' : e.message + ' (verifique CORS/URL)'), 'err', 4500); } };
+$$('.modal-bg').forEach(m => m.addEventListener('click', e => { if(e.target === m) m.classList.add('hidden'); }));
+
+window.addEventListener('online', () => retryAll(true));
+window.addEventListener('pagehide', () => { clearTimeout(saveT); save(K.draft, state); });
+document.addEventListener('visibilitychange', () => { if(document.hidden){ clearTimeout(saveT); save(K.draft, state); } });
+if(navigator.onLine) setTimeout(() => retryAll(true), 1200);
+renderTipos(); render(); renderPendBadge();
+if(Object.keys(state.v).length > 1) $('#saveState').textContent = 'rascunho restaurado';
+if(!cfg().url) setTimeout(() => toast('Toque em ⚙️ para configurar o webhook do n8n', 'warn', 4000), 600);
+})();
+</script>
+</body>
+</html>
